@@ -4,24 +4,19 @@ on:
     branches:
       - main
 jobs:
-  build:
+  tag:
+    name: Tag
     runs-on: ubuntu-latest
-    
     steps:
-      - uses: actions/checkout@v2
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v5.1
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - name: Checkout branch "master"
+        uses: actions/checkout@v2
         with:
-          github_token: ${{ secrets.GT }}
-          release_branches: main
-      - name: Log version
-        run: echo ${{ steps.tag_version.outputs.new_tag }}
-      - name: Create a GitHub release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GT }}
+          ref: 'master'
+      - name: Tag snapshot
+        uses: tvdias/github-tagger@v0.0.1
         with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
-          release_name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
+          repo-token: ${{ secrets.GT }}
+          tag: ${{ steps.date.outputs.date }}
