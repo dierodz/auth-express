@@ -7,18 +7,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v5.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          release_branches : main
-      - name: Create a GitHub release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
-          release_name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
+    - uses: actions/checkout@v2
+      with:
+          ref: 'main'
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '12'
+    - run: npm install
+    - run: npm run build --if-present
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: get-version
+      id: package-version
+      uses: martinbeentjes/npm-get-version-action@master
+    - name: tag commit
+      uses: tvdias/github-tagger@v0.0.1
+      with:
+        repo-token: "${{ secrets.GT }}"
+        tag: "v${{ steps.package-version.outputs.current-version}}"
