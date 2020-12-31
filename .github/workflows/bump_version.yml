@@ -19,11 +19,3 @@ jobs:
       env:
         GH_TOKEN: "${{ secrets.GT }}"
         NPM_TOKEN: "${{ secrets.NT }}"
-    - name: get-version
-      id: package-version
-      uses: martinbeentjes/npm-get-version-action@master
-    - name: tag commit
-      uses: tvdias/github-tagger@v0.0.1
-      with:
-        repo-token: "${{ secrets.GT }}"
-        tag: "v${{ steps.package-version.outputs.current-version}}"
